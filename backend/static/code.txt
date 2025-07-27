@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <title>لوحة المراقبة الجوية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body{
+      margin: 0;
+      padding: 0;
+      background-color: #001f3f;
+      font-family: 'Cairo', sans-serif;
+      color: #ffffff;
+    }
+
+    .mainlayout{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .layout{
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .container{
+      flex: 1;
+      min-width: 350px;
+      background-color: #012a5a;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+      padding: 35px 30px;
+    }
+
+    .secondbox{
+      flex: 1;
+      min-width: 350px;
+      background-color: #012a5a;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .mapsection{
+      flex: 2;
+    }
+
+    .mapsection img{
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    .togglelog{
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .togglelog button{
+      background-color: #012a5a;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .logbox{
+      display: none;
+      background: #013b7c;
+      border: 1px solid #004080;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      overflow-y: auto;
+      max-height: 200px;
+    }
+
+    .logentry{
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logentry:last-child{
+      border-bottom: none;
+    }
+
+    h1{
+      text-align: center;
+      font-size: 26px;
+      color: #00e676;
+      margin-bottom: 30px;
+      transition: color 0.3s ease;
+    }
+     h1.warning{
+      background-color: rgba(255, 0, 0, 0.15);
+      border: 2px solid #ff5252;
+      padding: 12px;
+      border-radius: 12px;
+      display: inline-block;
+      width: 12cm;
+    }
+
+    .inforow{
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .infolabel{
+      font-weight: 600;
+      color: #90caf9;
+    }
+
+    .infovalue{
+      font-weight: 500;
+    }
+
+    .actions{
+      display: none;
+      justify-content: center;
+      margin-top: 30px;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .actionbtn{
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .actionbtn:hover{
+      background-color: #0056b3;
+    }
+
+    .overlay{
+      display: none;
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba(255, 0, 0, 0.1);
+      z-index: 0;
+      justify-content: center;
+      align-items: center;
+      font-size: 80px;
+      color: rgba(255, 0, 0, 0.4);
+      font-weight: bold;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="mainlayout">
+    <div class="layout">
+      <div class="container">
+        <h1 id="statusText">🟢 الحالة: لا توجد أجسام خطيرة</h1>
+        <div class="inforow"><div class="infolabel">نوع الجسم:</div><div class="infovalue" id="type">آمن</div></div>
+        <div class="inforow"><div class="infolabel">الموقع:</div><div class="infovalaue" id="location">مدرج A - شمال</div></div>
+        <div class="inforow"><div class="infolabel">السرعة:</div><div class="infovalue" id="speed">0 كم/س</div></div>
+        <div class="inforow"><div class="infolabel">الارتفاع:</div><div class="infovalue" id="height">0 م</div></div>
+        <div class="inforow"><div class="infolabel">دقة التصنيف:</div><div class="infovalue" id="accuracy">100%</div></div>
+        <div class="inforow"><div class="infolabel">الوقت:</div><div class="infovalue" id="timestamp">--</div></div>
+        <div class="actions" id="actions">
+          <button class="actionbtn" onclick="logAction('تجاهل')">تجاهل</button>
+          <button class="actionbtn" onclick="logAction('إرسال فريق')">إرسال فريق</button>
+          <button class="actionbtn" onclick="logAction('إيقاف الإقلاع')">إيقاف الإقلاع</button>
+        </div>
+      </div>
+      <div class="secondbox">
+        <div class="mapsection">
+          <img src="map.jpg" alt="خريطة المطار"/>
+        </div>
+        <div class="togglelog">
+          <button onclick="toggleLog()">📄 عرض / إخفاء السجل</button>
+        </div>
+        <div class="logbox" id="logBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let logs = [];
+    let isPaused = false;
+
+    function logAction(action){
+      const now = new Date();
+      const time = now.toLocaleTimeString('ar-EG');
+      const date = now.toLocaleDateString('ar-EG');
+      logs.unshift(`✔ ${action} — ${time} ${date}`);
+      renderLog();
+      isPaused = false;
+      hideOverlay();
+    }
+
+    function renderLog(){
+      const box = document.getElementById('logBox');
+      box.innerHTML = logs.map(item => `<div class='logentry'>${item}</div>`).join('');
+    }
+
+    function toggleLog(){
+      const logBox = document.getElementById('logBox');
+      if (logBox.style.display === 'none' || logBox.style.display === ''){
+        logBox.style.display = 'block';
+        renderLog();
+      } else{
+        logBox.style.display = 'none';
+      }
+    }
+
+    function showOverlay(){
+      document.getElementById('alertOverlay').style.display = 'flex';
+    }
+ 
+    function hideOverlay(){
+      document.getElementById('alertOverlay').style.display = 'none';
+    }
+
+    function updateUI(data){
+      document.getElementById('type').textContent = data.objectType;
+      document.getElementById('location').textContent = data.location;
+      document.getElementById('speed').textContent = `${data.speed} كم/س`;
+      document.getElementById('height').textContent = `${data.height} م`;
+      document.getElementById('accuracy').textContent = data.accuracy;
+      document.getElementById('timestamp').textContent = data.timestamp;
+
+      const isDanger = ['درون', 'طائر', 'Drone', 'Bird'].includes(data.objectType);
+      const statusText = document.getElementById('statusText');
+      const actions = document.getElementById('actions');
+
+      if (isDanger){
+        isPaused = true;
+        actions.style.display = 'flex';
+        statusText.style.color = '#ff5252';
+        statusText.classList.add("warning");
+        statusText.textContent = data.objectType === 'درون' || data.objectType === 'Drone'
+          ? '🚨 تنبيه: تم رصد درون غير مصرح به'
+          : '🚨 تنبيه: تم رصد طائر في منطقة المطار';
+
+        showOverlay();
+      } else{
+        actions.style.display = 'none';
+        statusText.style.color = '#00e676';
+        statusText.textContent = '🟢 الحالة: لا توجد أجسام خطيرة';
+        statusText.classList.remove("warning");
+        hideOverlay();
+      }
+    }
+
+    function getMockData(){
+      if (isPaused) return;
+
+      const types = ['آمن', 'درون', 'طائر'];
+      const mock = {
+        objectType: types[Math.floor(Math.random() * types.length)],
+        location: 'مدرج A - شمال',
+        speed: Math.floor(Math.random() * 80),
+        height: Math.floor(Math.random() * 100),
+        accuracy: `${Math.floor(Math.random() * 10) + 90}%`,
+        timestamp: new Date().toLocaleString('ar-EG'),
+        danger: 'High'
+      };
+      updateUI(mock);
+    }
+
+    setInterval(getMockData, 4000);
+    getMockData();
+  </script>
+</body>
+</html>

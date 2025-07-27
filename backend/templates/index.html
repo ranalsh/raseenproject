@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة مراقبة الأجسام الجوية</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- ملف CSS من مجلد static -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="min-h-screen p-4 md:p-6 bg-[#0a192f] text-[#e2e8f0] font-[Cairo,sans-serif]">
+
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b border-cyan-800 pb-3">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-cyan-100">لوحة مراقبة الأجسام الجوية</h1>
+        <div class="flex items-center mt-1">
+          <div class="h-2 w-2 rounded-full bg-green-400 mr-2 blink"></div>
+          <span class="text-green-400 text-sm">حالة الإشارة: جيدة</span>
+        </div>
+      </div>
+      <div class="mt-2 md:mt-0">
+        <div class="text-sm text-gray-400">الوقت الحالي</div>
+        <div class="text-xl text-cyan-100" id="current-time">00:00:00</div>
+      </div>
+    </header>
+
+    <!-- الحالة -->
+    <div class="bg-green-900 bg-opacity-20 border-l-4 border-green-500 p-4 rounded mb-6">
+      <div class="font-bold text-green-400 text-lg" id="statusText">🟢 الحالة: لا توجد أجسام خطيرة</div>
+      <div class="text-sm text-gray-300 mt-1" id="statusDetail">لا توجد أي تهديدات حالياً في المجال الجوي.</div>
+      <div id="actions" class="hidden mt-4 flex gap-2">
+        <button onclick="logAction('تم تجاهل التنبيه')" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-sm">تجاهل</button>
+        <button onclick="logAction('تم إرسال فريق تفتيش')" class="px-3 py-1 bg-red-600 hover:bg-red-500 rounded text-sm">إرسال فريق</button>
+      </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <!-- معلومات الكشف -->
+      <div class="lg:col-span-2 bg-gray-900 bg-opacity-50 border border-cyan-900 rounded-lg shadow-lg p-4">
+        <h2 class="text-cyan-100 font-bold mb-4 border-b border-cyan-800 pb-2">الكشف الحالي:</h2>
+        <div class="space-y-2">
+          <div class="inforow"><div class="infolabel">نوع الجسم:</div><div class="infovalue" id="type">--</div></div>
+          <div class="inforow"><div class="infolabel">الموقع:</div><div class="infovalue" id="location">--</div></div>
+          <div class="inforow"><div class="infolabel">السرعة:</div><div class="infovalue" id="speed">--</div></div>
+          <div class="inforow"><div class="infolabel">الارتفاع:</div><div class="infovalue" id="altitude">--</div></div>
+          <div class="inforow"><div class="infolabel">الطاقة:</div><div class="infovalue" id="energy">--</div></div>
+          <div class="inforow"><div class="infolabel">مقياس الحجم:</div><div class="infovalue" id="size_score">--</div></div>
+          <div class="inforow"><div class="infolabel">معدل الرفرفة:</div><div class="infovalue" id="flap_rate">-- Hz</div></div>
+          <div class="inforow"><div class="infolabel">دقة التصنيف:</div><div class="infovalue" id="accuracy">--</div></div>
+          <div class="inforow"><div class="infolabel">الوقت:</div><div class="infovalue" id="timestamp">--</div></div>
+        </div>
+      </div>
+
+      <!-- الخريطة والسجل -->
+      <div class="lg:col-span-3 flex flex-col gap-6">
+        <div class="h-64 flex items-center justify-center">
+          <img src="{{ url_for('static', filename='map4.jpg') }}" alt="خريطة المطار" class="w-full h-full object-cover rounded-lg shadow border border-cyan-900">
+        </div>
+
+        <!-- السجل -->
+        <div class="bg-gray-900 bg-opacity-50 border border-cyan-900 rounded-lg shadow-lg">
+          <div class="bg-cyan-900 bg-opacity-50 px-4 py-2 border-b border-cyan-800 cursor-pointer" onclick="toggleLog()">
+            <h2 class="font-bold text-cyan-100 select-none">السجل</h2>
+          </div>
+          <div id="logBox" class="p-4 text-sm space-y-2 hidden"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تنبيه -->
+  <div id="alertOverlay" style="display: none;" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+    <div class="bg-red-800 text-white p-6 rounded shadow-xl max-w-md w-full text-center">
+      <h2 class="text-2xl font-bold mb-4">⚠️ تنبيه!</h2>
+      <p class="mb-4">تم رصد جسم غير مصرح به في المجال الجوي.</p>
+      <button onclick="hideOverlay()" class="bg-white text-red-700 px-4 py-2 rounded hover:bg-gray-100">إغلاق</button>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

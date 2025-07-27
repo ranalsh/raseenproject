@@ -1,0 +1,10 @@
+flask
+joblib
+pandas
+scikit-learn
+openpyxl 
+
+venv\Scripts\activate
+python app.py
+
+deactivate #to stop
